@@ -1,0 +1,26 @@
+{
+  "video1": {
+    "path": "uploads\\1767867486718\\scrolll.mp4",
+    "name": "scrolll.mp4",
+    "rating": "Poor",
+    "activity_score": 20.491034373038488,
+    "jerkiness": 17.664448899930733,
+    "jitter_ms": 84.27939187019625,
+    "estimated_fps": 7.798186790888524
+  },
+  "video2": {
+    "path": "uploads\\1767867486718\\scroll2.mp4",
+    "name": "scroll2.mp4",
+    "rating": "Poor",
+    "activity_score": 20.509030778623448,
+    "jerkiness": 15.564139873373833,
+    "jitter_ms": 3.710940299402125,
+    "estimated_fps": 11.891837315291516
+  },
+  "results": {
+    "overall_winner": "Video 2",
+    "better_jerkiness": "Video 2",
+    "better_jitter": "Video 2",
+    "better_fps": "Video 2"
+  }
+}

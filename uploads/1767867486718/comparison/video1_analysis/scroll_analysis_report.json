@@ -1,0 +1,285 @@
+{
+  "frames_processed": 548,
+  "average_scroll_activity": 20.491034373038488,
+  "scroll_jerkiness": 17.664448899930733,
+  "frame_time_jitter_ms": 84.27939187019625,
+  "estimated_fps": 7.798186790888524,
+  "mean_frame_interval_ms": 128.23493804590697,
+  "frame_skip": 5,
+  "max_frames": 2000,
+  "smoothness_rating": "Poor",
+  "smoothness_description": "Significant stutter and lag - below industry standards",
+  "summary": "Overall scroll smoothness: Poor - Significant stutter and lag - below industry standards. Activity score: 20.49 (content movement level), Jerkiness: 17.66 (motion consistency, lower is better), Frame-time jitter: 84.28 ms (timing stability, target < 8ms for smooth), Estimated FPS: 7.8 (target: 60 FPS).",
+  "issues": [
+    "High jerkiness (17.66): Scrolling motion is very uneven and jerky.",
+    "High frame-time jitter (84.28 ms): Significant frame timing variation causing stutter (target: < 16ms for 60 FPS).",
+    "Low frame rate (estimated 7.8 FPS): Below optimal 60 FPS target."
+  ],
+  "problem_windows": [
+    {
+      "type": "motion_spike",
+      "start_sec": 0.4,
+      "end_sec": 1.0,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 1.35,
+      "end_sec": 1.95,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 2.27,
+      "end_sec": 2.61,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 3.09,
+      "end_sec": 3.68,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 3.92,
+      "end_sec": 4.17,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 4.51,
+      "end_sec": 6.51,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 6.68,
+      "end_sec": 7.18,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 7.35,
+      "end_sec": 7.51,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 9.68,
+      "end_sec": 10.68,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 13.35,
+      "end_sec": 14.52,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 17.02,
+      "end_sec": 17.19,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 17.36,
+      "end_sec": 17.77,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 17.94,
+      "end_sec": 19.35,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 19.52,
+      "end_sec": 20.19,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 20.35,
+      "end_sec": 21.02,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 22.39,
+      "end_sec": 23.14,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 25.41,
+      "end_sec": 25.5,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 25.66,
+      "end_sec": 26.41,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 26.94,
+      "end_sec": 27.66,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 29.39,
+      "end_sec": 29.72,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 29.88,
+      "end_sec": 30.13,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 32.12,
+      "end_sec": 32.62,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 33.95,
+      "end_sec": 34.05,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 34.22,
+      "end_sec": 35.39,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 38.44,
+      "end_sec": 38.99,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 39.64,
+      "end_sec": 40.21,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 40.77,
+      "end_sec": 41.06,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 43.45,
+      "end_sec": 43.71,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 47.38,
+      "end_sec": 47.95,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 50.41,
+      "end_sec": 51.45,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 54.02,
+      "end_sec": 54.39,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 57.14,
+      "end_sec": 57.97,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 60.83,
+      "end_sec": 61.17,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 61.78,
+      "end_sec": 64.73,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 67.06,
+      "end_sec": 67.6,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "motion_spike",
+      "start_sec": 69.0,
+      "end_sec": 70.02,
+      "description": "Content motion is very uneven in this range, which may feel jerky."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 37.07,
+      "end_sec": 50.6,
+      "description": "Frame timing is unstable here and may look like stutter."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 51.2,
+      "end_sec": 51.66,
+      "description": "Frame timing is unstable here and may look like stutter."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 51.89,
+      "end_sec": 54.21,
+      "description": "Frame timing is unstable here and may look like stutter."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 55.02,
+      "end_sec": 56.49,
+      "description": "Frame timing is unstable here and may look like stutter."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 56.84,
+      "end_sec": 57.97,
+      "description": "Frame timing is unstable here and may look like stutter."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 58.26,
+      "end_sec": 64.47,
+      "description": "Frame timing is unstable here and may look like stutter."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 64.73,
+      "end_sec": 66.31,
+      "description": "Frame timing is unstable here and may look like stutter."
+    },
+    {
+      "type": "timing_jitter",
+      "start_sec": 66.55,
+      "end_sec": 67.25,
+      "description": "Frame timing is unstable here and may look like stutter."
+    }
+  ],
+  "video_path": "uploads\\1767867486718\\scrolll.mp4"
+}
