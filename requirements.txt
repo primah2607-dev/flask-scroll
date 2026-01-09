@@ -1,4 +1,15 @@
 Flask==3.0.0
 Werkzeug==3.0.1
+
+# Core numeric stack (IMPORTANT: pin numpy)
 numpy<2
+
+# Computer vision
 opencv-python-headless==4.9.0.80
+
+# Plotting (headless-safe)
+matplotlib==3.8.4
+pillow
+
+# Production web server (recommended)
+gunicorn
