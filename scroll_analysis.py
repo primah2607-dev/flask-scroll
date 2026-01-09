@@ -1,5 +1,9 @@
 import cv2
+import os
 import numpy as np
+
+if not os.path.exists(cv2.__file__):
+    raise RuntimeError("OpenCV not installed correctly")
 
 def analyze_scroll(video_file):
     cap = cv2.VideoCapture(video_file)
