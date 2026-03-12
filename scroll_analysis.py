@@ -223,40 +223,6 @@ def analyze_scroll(video_path: str, out_dir: str):
         "video_path": video_path,
     }
 
-    # --------------------------
-    # PRINT USER-FRIENDLY REPORT
-    # --------------------------
-    print("\n" + "=" * 50)
-    print("SCROLL SMOOTHNESS REPORT")
-    print("=" * 50)
-    print(f"Video: {os.path.basename(video_path)}")
-    print(f"Frames processed: {processed}")
-    print(f"\nOverall rating: {smoothness}")
-    print(f"  {smoothness_desc}")
-    print(f"\n📊 KEY METRICS:")
-    print(f"  • Activity Score: {avg_speed:.2f}")
-    print(f"    → Meaning: How much the content moves during scrolling (higher = more movement)")
-    print(f"  • Jerkiness: {jerkiness:.2f}")
-    print(f"    → Meaning: How consistent the motion is (lower is better)")
-    print(f"    → Industry standard: < 2 = Excellent, < 5 = Good, < 10 = Fair, ≥ 10 = Poor")
-    print(f"  • Frame-time Jitter: {jitter:.2f} ms")
-    print(f"    → Meaning: Variation in time between frames (lower is better)")
-    print(f"    → Industry standard: < 3ms = Excellent, < 8ms = Good, < 16ms = Fair, ≥ 16ms = Poor")
-    print(f"  • Estimated FPS: {estimated_fps:.1f}")
-    print(f"    → Meaning: Average frames per second (target: 60 FPS for smooth scrolling)")
-    print(f"\n💡 Key Takeaways:")
-    for issue in issues:
-        print(f"  • {issue}")
-
-    if problem_windows:
-        print("\nWhere the experience is weakest:")
-        for win in problem_windows:
-            print(
-                f"- From {win['start_sec']:.2f}s to {win['end_sec']:.2f}s: "
-                f"{win['description']}"
-            )
-    print("=" * 50 + "\n")
-
     # Save JSON
     json_path = os.path.join(out_dir, "scroll_analysis_report.json")
     with open(json_path, "w", encoding="utf-8") as f:
@@ -385,37 +351,6 @@ def compare_videos(video_path1: str, video_path2: str, out_dir: str):
         "better_fps": better_fps,
     }
     
-    # Print comparison
-    print("\n" + "=" * 60)
-    print("COMPARISON RESULTS")
-    print("=" * 60)
-    print(f"\n📊 Overall Winner: {overall_winner}")
-    print(f"\nMetric-by-Metric Comparison:")
-    print(f"\n  Activity Score:")
-    print(f"    Video 1: {report1['average_scroll_activity']:.2f}")
-    print(f"    Video 2: {report2['average_scroll_activity']:.2f}")
-    print(f"    → Higher values indicate more content movement (neither is inherently better)")
-    
-    print(f"\n  Jerkiness (lower is better):")
-    print(f"    Video 1: {report1['scroll_jerkiness']:.2f} {'✓ Better' if better_jerkiness == 'Video 1' else ''}")
-    print(f"    Video 2: {report2['scroll_jerkiness']:.2f} {'✓ Better' if better_jerkiness == 'Video 2' else ''}")
-    print(f"    → Difference: {abs(report1['scroll_jerkiness'] - report2['scroll_jerkiness']):.2f}")
-    
-    print(f"\n  Frame-time Jitter (lower is better):")
-    print(f"    Video 1: {report1['frame_time_jitter_ms']:.2f} ms {'✓ Better' if better_jitter == 'Video 1' else ''}")
-    print(f"    Video 2: {report2['frame_time_jitter_ms']:.2f} ms {'✓ Better' if better_jitter == 'Video 2' else ''}")
-    print(f"    → Difference: {abs(report1['frame_time_jitter_ms'] - report2['frame_time_jitter_ms']):.2f} ms")
-    
-    print(f"\n  Estimated FPS (higher is better):")
-    print(f"    Video 1: {report1.get('estimated_fps', 0):.1f} FPS {'✓ Better' if better_fps == 'Video 1' else ''}")
-    print(f"    Video 2: {report2.get('estimated_fps', 0):.1f} FPS {'✓ Better' if better_fps == 'Video 2' else ''}")
-    print(f"    → Target: 60 FPS for smooth scrolling")
-    
-    print(f"\n  Overall Rating:")
-    print(f"    Video 1: {report1['smoothness_rating']} - {report1.get('smoothness_description', '')}")
-    print(f"    Video 2: {report2['smoothness_rating']} - {report2.get('smoothness_description', '')}")
-    print("=" * 60 + "\n")
-    
     # Save comparison JSON
     comparison_path = os.path.join(out_dir, "comparison_report.json")
     with open(comparison_path, "w", encoding="utf-8") as f:
@@ -491,9 +426,6 @@ def compare_videos(video_path1: str, video_path2: str, out_dir: str):
     # Comparison metrics summary
     ax5 = fig.add_subplot(gs[2, :])
     ax5.axis("off")
-    
-    winner_color1 = "#059669" if overall_winner == "Video 1" else "#6b7280"
-    winner_color2 = "#059669" if overall_winner == "Video 2" else "#6b7280"
     
     winner_indicator1 = "🏆" if overall_winner == "Video 1" else "  "
     winner_indicator2 = "🏆" if overall_winner == "Video 2" else "  "
