@@ -304,6 +304,50 @@ class ImageComparator:
         
         return spacing_info
     
+    def detect_element_type(self, region, w, h):
+        """
+        Detect what type of element is in the region: icon, text, image, button, etc.
+        Returns: 'icon', 'text', 'image', 'button', 'unknown'
+        """
+        if region.size == 0:
+            return 'unknown'
+        
+        # Convert to grayscale
+        if len(region.shape) == 3:
+            gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = region
+        
+        # Calculate characteristics
+        area = w * h
+        non_zero_pixels = np.sum(gray > 10)
+        fill_ratio = non_zero_pixels / area if area > 0 else 0
+        
+        # Detect edges
+        edges = cv2.Canny(gray, 50, 150)
+        edge_density = np.sum(edges > 0) / area if area > 0 else 0
+        
+        # Aspect ratio
+        aspect_ratio = w / h if h > 0 else 1
+        
+        # Icon detection: small, square-ish, high edge density, moderate fill
+        if area < 2500 and 0.7 < aspect_ratio < 1.4 and edge_density > 0.1 and 0.2 < fill_ratio < 0.8:
+            return 'icon'
+        
+        # Text detection: horizontal, low fill ratio, high edge density
+        if w > h * 1.5 and fill_ratio < 0.3 and edge_density > 0.05:
+            return 'text'
+        
+        # Image detection: large area, high fill ratio
+        if area > 10000 and fill_ratio > 0.5:
+            return 'image'
+        
+        # Button detection: rectangular, moderate size, moderate fill
+        if 500 < area < 5000 and 2 < aspect_ratio < 5 and 0.3 < fill_ratio < 0.7:
+            return 'button'
+        
+        return 'unknown'
+    
     def analyze_region_difference(self, baseline, actual, x, y, w, h):
         """
         Analyze a specific region to determine what type of discrepancy exists.
@@ -324,17 +368,35 @@ class ImageComparator:
         if baseline_region.size == 0 or actual_region.size == 0:
             return "Region difference detected"
         
+        # Detect element type FIRST to guide analysis
+        baseline_element_type = self.detect_element_type(baseline_region_exact, w, h)
+        actual_element_type = self.detect_element_type(actual_region_exact, w, h)
+        
         # Check for element presence/absence
         presence_info = self.detect_element_presence(baseline_region_exact, actual_region_exact)
         
-        # Try to extract text from both regions
-        baseline_text = self.extract_text_from_region(baseline_region_exact)
-        actual_text = self.extract_text_from_region(actual_region_exact)
+        # Try to extract text from both regions (only if it's likely text)
+        baseline_text = None
+        actual_text = None
+        if baseline_element_type == 'text' or actual_element_type == 'text' or (w < 200 and h < 50):
+            baseline_text = self.extract_text_from_region(baseline_region_exact)
+            actual_text = self.extract_text_from_region(actual_region_exact)
         
         # Build detailed description with specific measurements
         detailed_differences = []
         
-        # 1. Color differences with specific color names
+        # Determine element name based on type
+        element_name = "element"
+        if baseline_element_type == 'icon' or actual_element_type == 'icon':
+            element_name = "icon"
+        elif baseline_element_type == 'text' or actual_element_type == 'text':
+            element_name = "text"
+        elif baseline_element_type == 'image' or actual_element_type == 'image':
+            element_name = "image"
+        elif baseline_element_type == 'button' or actual_element_type == 'button':
+            element_name = "button"
+        
+        # 1. Color differences with specific color names (for icons, buttons, images)
         if len(baseline_region_exact.shape) == 3 and len(actual_region_exact.shape) == 3:
             baseline_mean_color = np.mean(baseline_region_exact, axis=(0, 1)).astype(int)
             actual_mean_color = np.mean(actual_region_exact, axis=(0, 1)).astype(int)
@@ -344,7 +406,7 @@ class ImageComparator:
                 baseline_color_name = self.get_color_name(baseline_mean_color)
                 actual_color_name = self.get_color_name(actual_mean_color)
                 if baseline_color_name != actual_color_name:
-                    detailed_differences.append(f"In baseline image color is {baseline_color_name}, but in actual image it's {actual_color_name}.")
+                    detailed_differences.append(f"In baseline image the {element_name} color is {baseline_color_name}, but in actual image it's {actual_color_name}.")
         
         # 2. Size differences with specific pixel measurements
         baseline_area = np.sum(cv2.cvtColor(baseline_region_exact, cv2.COLOR_BGR2GRAY) > 0) if len(baseline_region_exact.shape) == 3 else np.sum(baseline_region_exact > 0)
@@ -364,7 +426,7 @@ class ImageComparator:
             actual_width = actual_non_zero[1].max() - actual_non_zero[1].min() + 1 if len(actual_non_zero[1]) > 0 else w
             
             if abs(baseline_width - actual_width) > 5 or abs(baseline_height - actual_height) > 5:
-                detailed_differences.append(f"In baseline image element size is {baseline_width}×{baseline_height} pixels, but in actual image it's {actual_width}×{actual_height} pixels.")
+                detailed_differences.append(f"In baseline image the {element_name} size is {baseline_width}×{baseline_height} pixels, but in actual image it's {actual_width}×{actual_height} pixels.")
         
         # 3. Spacing/Padding differences with specific pixel measurements
         baseline_spacing = self.calculate_spacing(baseline, x, y, w, h)
@@ -391,8 +453,9 @@ class ImageComparator:
             content_info = f"In baseline image no text is detected, but in actual image text is '{actual_text}'."
             detailed_differences.append(content_info)
         
-        # 5. Detailed font analysis (if text region)
-        if w < 200 and h < 50:  # Likely text region
+        # 5. Detailed font analysis (ONLY if it's actually text, not icons)
+        # Only analyze font if element type is text, not icon
+        if (baseline_element_type == 'text' or actual_element_type == 'text') and w < 200 and h < 50:
             font_differences = []
             
             # Font size analysis
@@ -409,7 +472,7 @@ class ImageComparator:
                 actual_font_size = int(actual_avg_height * 0.8)
                 
                 if abs(baseline_font_size - actual_font_size) > 1:
-                    font_differences.append(f"font size is {baseline_font_size}px, but in actual image it's {actual_font_size}px")
+                    font_differences.append(f"font size is {baseline_font_size}px, but in actual image it's {actual_font_size}px.")
             
             # Font weight analysis (bold vs normal)
             baseline_edge_density = np.sum(baseline_edges > 0) / (w * h) if w * h > 0 else 0
@@ -609,11 +672,96 @@ class ImageComparator:
             full_description = " ".join(description_parts)
             return full_description
         
-        # Fallback if no detailed differences detected
+        # Fallback if no detailed differences detected - analyze what visual differences exist
         if presence_description:
             return presence_description
         
-        return "Visual difference detected in this region"
+        # If we have no specific differences but there IS a difference, analyze what it could be
+        # Always analyze to provide descriptive information
+        baseline_gray = cv2.cvtColor(baseline_region_exact, cv2.COLOR_BGR2GRAY) if len(baseline_region_exact.shape) == 3 else baseline_region_exact
+        actual_gray = cv2.cvtColor(actual_region_exact, cv2.COLOR_BGR2GRAY) if len(actual_region_exact.shape) == 3 else actual_region_exact
+        
+        # Calculate difference metrics
+        diff = cv2.absdiff(baseline_gray, actual_gray)
+        diff_percentage = (np.sum(diff > 20) / diff.size) * 100 if diff.size > 0 else 0
+        
+        # Calculate structural similarity using edges
+        baseline_edges = cv2.Canny(baseline_gray, 50, 150)
+        actual_edges = cv2.Canny(actual_gray, 50, 150)
+        edge_diff = cv2.absdiff(baseline_edges, actual_edges)
+        edge_diff_percentage = (np.sum(edge_diff > 0) / edge_diff.size) * 100 if edge_diff.size > 0 else 0
+        
+        # Calculate color difference (if color images)
+        color_diff = 0
+        baseline_color_name = None
+        actual_color_name = None
+        if len(baseline_region_exact.shape) == 3 and len(actual_region_exact.shape) == 3:
+            baseline_mean_color = np.mean(baseline_region_exact, axis=(0, 1)).astype(int)
+            actual_mean_color = np.mean(actual_region_exact, axis=(0, 1)).astype(int)
+            color_diff = np.linalg.norm(baseline_mean_color - actual_mean_color)
+            baseline_color_name = self.get_color_name(baseline_mean_color)
+            actual_color_name = self.get_color_name(actual_mean_color)
+        
+        # Calculate size differences
+        baseline_non_zero = np.where(baseline_gray > 10)
+        actual_non_zero = np.where(actual_gray > 10)
+        
+        baseline_area = len(baseline_non_zero[0]) if len(baseline_non_zero[0]) > 0 else 0
+        actual_area = len(actual_non_zero[0]) if len(actual_non_zero[0]) > 0 else 0
+        area_diff_percentage = abs(baseline_area - actual_area) / baseline_area * 100 if baseline_area > 0 else 0
+        
+        # Calculate position differences
+        baseline_center_x = np.mean(baseline_non_zero[1]) if len(baseline_non_zero[1]) > 0 else w/2
+        baseline_center_y = np.mean(baseline_non_zero[0]) if len(baseline_non_zero[0]) > 0 else h/2
+        actual_center_x = np.mean(actual_non_zero[1]) if len(actual_non_zero[1]) > 0 else w/2
+        actual_center_y = np.mean(actual_non_zero[0]) if len(actual_non_zero[0]) > 0 else h/2
+        
+        position_diff_x = abs(baseline_center_x - actual_center_x)
+        position_diff_y = abs(baseline_center_y - actual_center_y)
+        
+        # Build descriptive message based on detected differences
+        visual_differences = []
+        
+        # Always include pixel difference if significant
+        if diff_percentage > 5:
+            visual_differences.append(f"approximately {int(diff_percentage)}% of pixels differ")
+        
+        # Include structural differences
+        if edge_diff_percentage > 10:
+            visual_differences.append("structural or shape differences")
+        
+        # Include color differences
+        if color_diff > 15 and baseline_color_name and actual_color_name:
+            if baseline_color_name != actual_color_name:
+                visual_differences.append(f"color difference (baseline: {baseline_color_name}, actual: {actual_color_name})")
+            else:
+                visual_differences.append(f"color intensity difference")
+        
+        # Include size/area differences
+        if area_diff_percentage > 10:
+            if baseline_area > actual_area:
+                visual_differences.append(f"size reduction (approximately {int(area_diff_percentage)}% smaller in actual)")
+            else:
+                visual_differences.append(f"size increase (approximately {int(area_diff_percentage)}% larger in actual)")
+        
+        # Include position differences
+        if position_diff_x > 3 or position_diff_y > 3:
+            if position_diff_x > position_diff_y:
+                visual_differences.append(f"horizontal position shift (approximately {int(position_diff_x)}px)")
+            else:
+                visual_differences.append(f"vertical position shift (approximately {int(position_diff_y)}px)")
+        
+        # Return descriptive message
+        if len(visual_differences) > 0:
+            if len(visual_differences) == 1:
+                return f"Visual difference detected in this {element_name}: {visual_differences[0]}."
+            elif len(visual_differences) == 2:
+                return f"Visual difference detected in this {element_name}: {visual_differences[0]} and {visual_differences[1]}."
+            else:
+                return f"Visual difference detected in this {element_name}: {', '.join(visual_differences[:-1])}, and {visual_differences[-1]}."
+        
+        # If no specific differences detected but we know there's a difference, provide generic but informative message
+        return f"Visual difference detected in this {element_name} (appearance, shape, or content differs between baseline and actual images)."
     
     def draw_differences(self, actual_image, bounding_boxes, difference_mask=None):
         """Draw bounding boxes on the actual image highlighting differences with box numbers - neat and clear."""
