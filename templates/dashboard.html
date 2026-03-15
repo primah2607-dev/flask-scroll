@@ -334,6 +334,100 @@
             color: #856404;
         }
 
+        .discrepancy-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .discrepancy-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .discrepancy-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .discrepancy-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        .discrepancy-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            background: #10b981;
+            flex-shrink: 0;
+        }
+
+        .discrepancy-icon.font {
+            background: #10b981;
+        }
+
+        .discrepancy-icon.padding {
+            background: #3b82f6;
+            font-size: 1.3em;
+        }
+
+        .discrepancy-icon.color {
+            background: #f59e0b;
+        }
+
+        .discrepancy-icon.size {
+            background: #8b5cf6;
+        }
+
+        .discrepancy-icon.data {
+            background: #ef4444;
+        }
+
+        .discrepancy-content {
+            flex: 1;
+        }
+
+        .discrepancy-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .discrepancy-description {
+            color: #6b7280;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .discrepancy-coordinates {
+            color: #9ca3af;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+            margin-top: 8px;
+        }
+
         .video-dashboard-container {
             background: white;
             border: 3px solid #e5e7eb;
@@ -444,13 +538,14 @@
                         <div class="image-container">
                             <h4>🎯 Result with Differences Highlighted</h4>
                             <img id="resultImage" class="result-image" alt="Comparison Result">
-                            <div class="bounding-box-info" id="boundingBoxInfo"></div>
                         </div>
                         <div class="image-container">
                             <h4>Difference Mask</h4>
                             <img id="differenceMask" class="result-image" alt="Difference Mask">
                         </div>
                     </div>
+
+                    <div class="discrepancy-cards" id="discrepancyCards"></div>
                 </div>
             </div>
 
@@ -669,16 +764,170 @@
             `;
             document.getElementById('imageStats').innerHTML = statsHtml;
 
-            // Update bounding box info
-            if (data.bounding_boxes.length > 0) {
-                const boxesInfo = data.bounding_boxes.map((box, idx) => 
-                    `Box ${idx + 1}: Position (${box[0]}, ${box[1]}), Size ${box[2]}×${box[3]}px`
-                ).join('<br>');
-                document.getElementById('boundingBoxInfo').innerHTML = 
-                    `<strong>Bounding Boxes Detected:</strong><br>${boxesInfo}`;
+            // Update discrepancy cards
+            const discrepancyCardsDiv = document.getElementById('discrepancyCards');
+            if (data.bounding_boxes && data.bounding_boxes.length > 0) {
+                const descriptions = data.box_descriptions || [];
+                const cardsHtml = data.bounding_boxes.map((box, idx) => {
+                    const description = descriptions[idx] || 'Visual difference detected in this region';
+                    const x = box[0];
+                    const y = box[1];
+                    const w = box[2];
+                    const h = box[3];
+                    
+                    // Determine icon type based on description
+                    // Detect ALL discrepancy types and create combined heading
+                    let iconType = 'font';
+                    let iconText = 'T';
+                    let title = 'Font Discrepancy';
+                    
+                    const descLower = description.toLowerCase();
+                    
+                    // Check for ALL types of discrepancies
+                    const hasFont = descLower.includes('font') || descLower.includes('letter spacing');
+                    const hasColor = descLower.includes('color') && !descLower.includes('font');
+                    const hasSpacing = (descLower.includes('spacing') || descLower.includes('padding')) && !descLower.includes('letter spacing');
+                    const hasSize = descLower.includes('element size') || (descLower.includes('size') && !descLower.includes('font size') && !descLower.includes('font weight'));
+                    const hasPresence = descLower.includes('element presence') || descLower.includes('present in actual') || descLower.includes('not present in baseline');
+                    const hasAbsence = descLower.includes('element absence') || descLower.includes('present in baseline') || descLower.includes('not present in actual');
+                    const hasData = descLower.includes('data change') || descLower.includes('text is') || descLower.includes('different text') || descLower.includes('different numbers');
+                    
+                    // Count how many types we have
+                    const types = [];
+                    if (hasPresence) types.push('presence');
+                    if (hasAbsence) types.push('absence');
+                    if (hasFont) types.push('font');
+                    if (hasColor) types.push('color');
+                    if (hasSpacing) types.push('spacing');
+                    if (hasSize) types.push('size');
+                    if (hasData) types.push('data');
+                    
+                    // Build combined title based on all detected types
+                    if (types.length > 1) {
+                        // Multiple types - create combined heading
+                        const titleParts = [];
+                        
+                        if (hasPresence) {
+                            iconType = 'data';
+                            iconText = '+';
+                            titleParts.push('Element Presence');
+                        } else if (hasAbsence) {
+                            iconType = 'data';
+                            iconText = '-';
+                            titleParts.push('Element Absence');
+                        }
+                        
+                        if (hasFont) {
+                            if (descLower.includes('font size')) {
+                                titleParts.push('Font Size');
+                            } else if (descLower.includes('font weight')) {
+                                titleParts.push('Font Weight');
+                            } else if (descLower.includes('letter spacing')) {
+                                titleParts.push('Font Spacing');
+                            } else {
+                                titleParts.push('Font');
+                            }
+                            iconType = 'font';
+                            iconText = 'T';
+                        }
+                        
+                        if (hasColor) {
+                            titleParts.push('Color');
+                            if (!hasFont && !hasPresence && !hasAbsence) {
+                                iconType = 'color';
+                                iconText = 'C';
+                            }
+                        }
+                        
+                        if (hasSpacing) {
+                            titleParts.push('Spacing/Padding');
+                            if (types.length === 1 || (!hasFont && !hasColor && !hasPresence && !hasAbsence)) {
+                                iconType = 'padding';
+                                iconText = '⊞';
+                            }
+                        }
+                        
+                        if (hasSize) {
+                            titleParts.push('Size');
+                            if (types.length === 1 || (!hasFont && !hasColor && !hasSpacing && !hasPresence && !hasAbsence)) {
+                                iconType = 'size';
+                                iconText = 'S';
+                            }
+                        }
+                        
+                        if (hasData) {
+                            titleParts.push('Data');
+                            if (types.length === 1 || (!hasFont && !hasColor && !hasSpacing && !hasSize && !hasPresence && !hasAbsence)) {
+                                iconType = 'data';
+                                iconText = 'D';
+                            }
+                        }
+                        
+                        // Join with "and" for combined title
+                        if (titleParts.length === 2) {
+                            title = titleParts.join(' and ') + ' Discrepancy';
+                        } else if (titleParts.length > 2) {
+                            title = titleParts.slice(0, -1).join(', ') + ', and ' + titleParts[titleParts.length - 1] + ' Discrepancy';
+                        } else {
+                            title = titleParts[0] + ' Discrepancy';
+                        }
+                    } else if (types.length === 1) {
+                        // Single type
+                        if (hasPresence) {
+                            iconType = 'data';
+                            iconText = '+';
+                            title = 'Element Presence';
+                        } else if (hasAbsence) {
+                            iconType = 'data';
+                            iconText = '-';
+                            title = 'Element Absence';
+                        } else if (hasFont) {
+                            iconType = 'font';
+                            iconText = 'T';
+                            if (descLower.includes('font size')) {
+                                title = 'Font Size Discrepancy';
+                            } else if (descLower.includes('font weight')) {
+                                title = 'Font Weight Discrepancy';
+                            } else if (descLower.includes('letter spacing')) {
+                                title = 'Font Spacing Discrepancy';
+                            } else {
+                                title = 'Font Discrepancy';
+                            }
+                        } else if (hasColor) {
+                            iconType = 'color';
+                            iconText = 'C';
+                            title = 'Color Discrepancy';
+                        } else if (hasSpacing) {
+                            iconType = 'padding';
+                            iconText = '⊞';
+                            title = 'Spacing/Padding Discrepancy';
+                        } else if (hasSize) {
+                            iconType = 'size';
+                            iconText = 'S';
+                            title = 'Size Discrepancy';
+                        } else if (hasData) {
+                            iconType = 'data';
+                            iconText = 'D';
+                            title = 'Data Change';
+                        }
+                    }
+                    
+                    return `
+                        <div class="discrepancy-card">
+                            <div class="discrepancy-number">${idx + 1}.</div>
+                            <div class="discrepancy-icon ${iconType}">${iconText}</div>
+                            <div class="discrepancy-content">
+                                <div class="discrepancy-title">${title}</div>
+                                <div class="discrepancy-description">${description}</div>
+                                <div class="discrepancy-coordinates">x: ${x}, y: ${y}, w: ${w}, h: ${h}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                discrepancyCardsDiv.innerHTML = cardsHtml;
             } else {
-                document.getElementById('boundingBoxInfo').innerHTML = 
-                    '<strong>No significant differences detected!</strong>';
+                discrepancyCardsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #10b981; font-size: 1.2em;">✓ No significant differences detected! Images match perfectly.</div>';
             }
 
             // Show results

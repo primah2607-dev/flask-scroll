@@ -96,6 +96,7 @@ def compare_images_api():
             'similarity_score': result['similarity_score'],
             'num_differences': result['num_differences'],
             'bounding_boxes': result['bounding_boxes'],
+            'box_descriptions': result.get('box_descriptions', []),
             'output_image_url': f'/api/image/{session_id}/comparison_result.png',
             'baseline_image_url': f'/api/image/{session_id}/baseline_{baseline_filename}',
             'actual_image_url': f'/api/image/{session_id}/actual_{actual_filename}',

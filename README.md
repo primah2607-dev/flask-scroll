@@ -25,6 +25,18 @@ A unified dashboard for comparing images and videos with AI-powered analysis.
 pip install -r requirements.txt
 ```
 
+3. (Optional) For enhanced text extraction in image comparison, install Tesseract OCR:
+   - **Windows**: Download from [GitHub](https://github.com/UB-Mannheim/tesseract/wiki) or use `choco install tesseract`
+   - **macOS**: `brew install tesseract`
+   - **Linux**: `sudo apt-get install tesseract-ocr` (Ubuntu/Debian) or `sudo yum install tesseract` (CentOS/RHEL)
+   
+   Then install Python wrapper:
+   ```bash
+   pip install pytesseract
+   ```
+   
+   Note: The system works without OCR, but descriptions will be less detailed.
+
 ## Usage
 
 1. Start the Flask server:
