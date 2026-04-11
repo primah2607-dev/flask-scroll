@@ -3,6 +3,9 @@ import json
 import os
 
 import cv2
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -227,7 +230,7 @@ def analyze_scroll(video_path: str, out_dir: str):
     json_path = os.path.join(out_dir, "scroll_analysis_report.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
-    print(f"📄 Analysis saved to {json_path}")
+    print(f"Analysis saved to {json_path}")
     
     # Save velocity and interval arrays for comparison
     np.savetxt(os.path.join(out_dir, "velocities.txt"), velocities)
@@ -279,7 +282,7 @@ def analyze_scroll(video_path: str, out_dir: str):
     dash_path = os.path.join(out_dir, "scroll_analysis_dashboard.png")
     plt.savefig(dash_path)
     plt.close(fig)
-    print(f"📊 Dashboard saved to {dash_path}")
+    print(f"Dashboard saved to {dash_path}")
 
     return report
 
@@ -355,7 +358,7 @@ def compare_videos(video_path1: str, video_path2: str, out_dir: str):
     comparison_path = os.path.join(out_dir, "comparison_report.json")
     with open(comparison_path, "w", encoding="utf-8") as f:
         json.dump(comparison, f, indent=2)
-    print(f"📄 Comparison report saved to {comparison_path}")
+    print(f"Comparison report saved to {comparison_path}")
     
     # Create side-by-side comparison dashboard - smaller size for preview
     fig = plt.figure(figsize=(14, 8))
@@ -427,8 +430,8 @@ def compare_videos(video_path1: str, video_path2: str, out_dir: str):
     ax5 = fig.add_subplot(gs[2, :])
     ax5.axis("off")
     
-    winner_indicator1 = "🏆" if overall_winner == "Video 1" else "  "
-    winner_indicator2 = "🏆" if overall_winner == "Video 2" else "  "
+    winner_indicator1 = "*" if overall_winner == "Video 1" else " "
+    winner_indicator2 = "*" if overall_winner == "Video 2" else " "
     
     summary_text = f"""
     COMPARISON SUMMARY
@@ -450,7 +453,7 @@ def compare_videos(video_path1: str, video_path2: str, out_dir: str):
     comparison_dash_path = os.path.join(out_dir, "comparison_dashboard.png")
     plt.savefig(comparison_dash_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"📊 Comparison dashboard saved to {comparison_dash_path}")
+    print(f"Comparison dashboard saved to {comparison_dash_path}")
     
     return comparison
 
